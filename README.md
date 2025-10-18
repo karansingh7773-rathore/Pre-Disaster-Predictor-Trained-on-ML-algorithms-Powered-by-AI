@@ -770,12 +770,12 @@ We welcome contributions! Here's how you can help:
 
 ##  Contact
 
-**Project Maintainer**: Your Name
-- Email: your.email@example.com
-- LinkedIn: [Your Profile](https://linkedin.com/in/yourprofile)
-- GitHub: [@yourusername](https://github.com/yourusername)
+**Project Maintainer**: Karan Singh Rathore
+- Email: karan.rathore.aiml.engineer@gmail.com
+- LinkedIn: [@Karan Singh Rathore](https://www.linkedin.com/in/karansingh7773/)
+- GitHub: [@Karan Singh Rathore](https://github.com/karansingh7773-rathore)
 
-**Project Link**: [https://github.com/yourusername/disaster-predictor-ai](https://github.com/yourusername/disaster-predictor-ai)
+**Project Link**: [https://github.com/karansingh7773-rathore/Pre-Disaster-Predictor-Trained-on-ML-algorithms-Powered-by-AI](https://github.com/karansingh7773-rathore/Pre-Disaster-Predictor-Trained-on-ML-algorithms-Powered-by-AI)
 
 ---
 
@@ -786,7 +786,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ```
 MIT License
 
-Copyright (c) 2025 Your Name
+Copyright (c) 2025 Karan Singh Rathore
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -799,7 +799,7 @@ in the Software without restriction...
 
 If this project helped you, please consider giving it a ⭐️!
 
-[![Star History Chart](https://api.star-history.com/svg?repos=yourusername/disaster-predictor-ai&type=Date)](https://star-history.com/#yourusername/disaster-predictor-ai&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=karansingh7773-rathore/disaster-predictor-ai&type=Date)](https://star-history.com/#karansingh7773-rathore/disaster-predictor-ai&Date)
 
 ---
 
@@ -813,4 +813,4 @@ This project was inspired by the need to make disaster preparedness accessible t
 
 **Made with ❤️ for a safer world**
 
-*Last Updated: January 2024*
+*Last Updated: Octomber 2025*
