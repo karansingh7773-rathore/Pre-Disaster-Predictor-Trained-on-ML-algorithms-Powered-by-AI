@@ -1,4 +1,4 @@
-# 🌍 AI-Powered Disaster Prediction & Emergency Management System
+#  AI-Powered Disaster Prediction & Emergency Management System
 
 [![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![Flask](https://img.shields.io/badge/Flask-2.0+-green.svg)](https://flask.palletsprojects.com/)
@@ -12,7 +12,7 @@
 
 ---
 
-## 📋 Table of Contents
+##  Table of Contents
 
 - [Overview](#-overview)
 - [Key Features](#-key-features)
@@ -31,7 +31,7 @@
 
 ---
 
-## 🎯 Overview
+##  Overview
 
 This project is a **comprehensive disaster prediction and emergency management system** that leverages advanced machine learning, real-time weather data integration, and AI-powered recommendations to protect communities from natural disasters.
 
@@ -46,14 +46,14 @@ This project is a **comprehensive disaster prediction and emergency management s
 
 ---
 
-## 🚀 Key Features
+##  Key Features
 
 ### 1. **Multi-Disaster Risk Prediction**
-- 🌊 **Flood Detection**: Analyzes rainfall, elevation, river proximity
-- 🏚️ **Earthquake Risk**: Evaluates seismic activity and infrastructure quality
-- ⛰️ **Landslide Warning**: Assesses slope angles, soil types, and rainfall patterns
-- 🌀 **Cyclone Alerts**: Monitors wind speed, pressure, and temperature conditions
-- ☀️ **Drought Forecasting**: Tracks rainfall deficiency and temperature trends
+-  **Flood Detection**: Analyzes rainfall, elevation, river proximity
+-  **Earthquake Risk**: Evaluates seismic activity and infrastructure quality
+-  **Landslide Warning**: Assesses slope angles, soil types, and rainfall patterns
+-  **Cyclone Alerts**: Monitors wind speed, pressure, and temperature conditions
+-  **Drought Forecasting**: Tracks rainfall deficiency and temperature trends
 
 ### 2. **Real-Time IMD Integration**
 - Official weather warnings from Indian Meteorological Department
@@ -91,7 +91,7 @@ This project is a **comprehensive disaster prediction and emergency management s
 
 ---
 
-## 🌟 Real-World Impact
+##  Real-World Impact
 
 ### Lives Saved
 - **Early Warning**: Up to 72 hours advance notice for disasters
@@ -128,7 +128,7 @@ This project is a **comprehensive disaster prediction and emergency management s
 
 ---
 
-## 🛠 Technology Stack
+##  Technology Stack
 
 ### Backend
 - **Python 3.8+**: Core programming language
@@ -174,7 +174,7 @@ This project is a **comprehensive disaster prediction and emergency management s
 
 ---
 
-## 🏗 System Architecture
+##  System Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -218,7 +218,7 @@ This project is a **comprehensive disaster prediction and emergency management s
 
 ---
 
-## 🧠 Machine Learning Models
+##  Machine Learning Models
 
 ### Training Process
 
@@ -275,7 +275,7 @@ drought_model.pkl       (RandomForest, 2.0 MB)
 
 ---
 
-## 📦 Installation
+##  Installation
 
 ### Prerequisites
 - Python 3.8 or higher
@@ -338,7 +338,7 @@ http://localhost:5000
 
 ---
 
-## ⚙️ Configuration
+##  Configuration
 
 ### Environment Variables
 
@@ -382,7 +382,7 @@ FLASK_PORT=5000
 
 ### Security Best Practices
 
-⚠️ **Never commit `.env` file to Git!**
+ **Never commit `.env` file to Git!**
 
 ```bash
 # Already in .gitignore
@@ -393,7 +393,7 @@ __pycache__/
 
 ---
 
-## 🎮 Usage
+##  Usage
 
 ### 1. City Risk Analysis
 
@@ -480,7 +480,7 @@ Content-Type: application/json
 
 ---
 
-## 📚 API Documentation
+##  API Documentation
 
 ### Base URL
 ```
@@ -596,7 +596,7 @@ Response:
 
 ---
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 disaster-predictor-ai/
@@ -634,7 +634,7 @@ disaster-predictor-ai/
 
 ---
 
-## 🤝 Contributing
+##  Contributing
 
 We welcome contributions! Here's how you can help:
 
@@ -677,7 +677,7 @@ We welcome contributions! Here's how you can help:
 
 ---
 
-## 🔮 Future Enhancements
+##  Future Enhancements
 
 ### Phase 1: Tourist Safety (In Progress)
 - [ ] GPS quality enhancement with Kalman filtering
@@ -711,7 +711,7 @@ We welcome contributions! Here's how you can help:
 
 ---
 
-## 📊 Performance Metrics
+##  Performance Metrics
 
 ### System Performance
 - **API Response Time**: <500ms average
@@ -728,7 +728,7 @@ We welcome contributions! Here's how you can help:
 
 ---
 
-## 🐛 Known Issues
+##  Known Issues
 
 1. **IMD API Limitations**
    - Some APIs return limited data
@@ -748,7 +748,7 @@ We welcome contributions! Here's how you can help:
 
 ---
 
-## 📖 Documentation
+##  Documentation
 
 - **API Reference**: [docs/API.md](docs/API.md)
 - **Deployment Guide**: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)
@@ -757,7 +757,7 @@ We welcome contributions! Here's how you can help:
 
 ---
 
-## 🙏 Acknowledgments
+##  Acknowledgments
 
 - **Indian Meteorological Department** for weather data APIs
 - **Mapbox** for mapping and routing services
@@ -767,7 +767,7 @@ We welcome contributions! Here's how you can help:
 
 ---
 
-## 📧 Contact
+##  Contact
 
 **Project Maintainer**: Your Name
 - Email: your.email@example.com
@@ -778,14 +778,14 @@ We welcome contributions! Here's how you can help:
 
 ---
 
-## 📜 License
+##  License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ```
 MIT License
 
-Copyright (c) 2024 Your Name
+Copyright (c) 2025 Your Name
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -794,7 +794,7 @@ in the Software without restriction...
 
 ---
 
-## 🌟 Star History
+##  Star History
 
 If this project helped you, please consider giving it a ⭐️!
 
@@ -802,7 +802,7 @@ If this project helped you, please consider giving it a ⭐️!
 
 ---
 
-## 💡 Inspiration
+##  Inspiration
 
 This project was inspired by the need to make disaster preparedness accessible to everyone. By combining cutting-edge AI with real-time data, we aim to save lives and reduce the impact of natural disasters on communities worldwide.
 
