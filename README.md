@@ -124,7 +124,7 @@ This project is a **comprehensive disaster prediction and emergency management s
 - ✅ **Accuracy**: 85%+ prediction accuracy across disaster types
 - ✅ **Speed**: Real-time predictions in <2 seconds
 - ✅ **Coverage**: Supports 100+ Indian cities
-- ✅ **Scalability**: Handles 1000+ concurrent users
+- ✅ **Scalability**: Can Handles concurrent users
 
 ---
 
