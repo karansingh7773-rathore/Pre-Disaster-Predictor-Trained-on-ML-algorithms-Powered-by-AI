@@ -287,7 +287,8 @@ drought_model.pkl       (RandomForest, 2.0 MB)
 
 #### 1. Clone the Repository
 ```bash
-git clone https://github.com/yourusername/disaster-predictor-ai.git
+git clone https://github.com/karansingh7773-rathore/Pre-Disaster-Predictor-Trained-on-ML-algorithms-Powered-by-AI.git
+
 cd disaster-predictor-ai
 ```
 
