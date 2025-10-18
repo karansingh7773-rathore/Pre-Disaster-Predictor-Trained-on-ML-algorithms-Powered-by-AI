@@ -1,0 +1,1273 @@
+#visualization.html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Enhanced Disaster Risk Visualization</title>
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css' rel='stylesheet' />
+    <script src='https://unpkg.com/@turf/turf@6/turf.min.js'></script>
+    <style>
+        body { margin: 0; font-family: Arial, sans-serif; }
+        
+        #map { 
+            position: absolute; 
+            top: 70px; /* Increased from 50px */
+            bottom: 0; 
+            right: 400px;
+            width: calc(100% - 400px);
+            height: calc(100vh - 70px);
+        }
+        
+        /* Update controls styling for better layout */
+        #controls { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            right: 400px; 
+            height: auto; /* Changed from fixed height */
+            padding: 10px; 
+            background: white;
+            border-bottom: 1px solid #ccc;
+            display: flex;
+            flex-wrap: wrap; /* Allow buttons to wrap */
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Group related controls */
+        .control-group {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+            margin-right: 10px;
+        }
+        
+        #info-panel { 
+            position: absolute; 
+            top: 0; 
+            right: 0; 
+            width: 400px; 
+            height: 100vh;
+            background: white;
+            border-left: 1px solid #ccc;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Prevent outer scrolling */
+        }
+
+        /* Add a scrollable container for all panels */
+        .info-panel-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0;
+            scrollbar-width: thin;
+        }
+        
+        .panel-section {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            min-height: auto; /* Allow sections to shrink */
+        }
+        
+        /* Make chat container height flexible */
+        .chat-container {
+            min-height: 200px; /* Minimum height for chat */
+            height: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .risk-box {
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .risk-high { background: rgba(255,0,0,0.1); border: 1px solid red; }
+        .risk-medium { background: rgba(255,255,0,0.1); border: 1px solid orange; }
+        .risk-low { background: rgba(0,255,0,0.1); border: 1px solid green; }
+        
+        .btn {
+            margin: 2px;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            white-space: nowrap;
+            min-width: fit-content;
+        }
+        
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-warning { background: #ffc107; color: black; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-info { background: #17a2b8; color: white; }
+        
+        .btn:hover { opacity: 0.8; }
+        
+        .isochrone-controls {
+            margin-top: 10px;
+            padding: 10px;
+            border-top: 1px solid #ccc;
+            background: #f8f9fa;
+        }
+        
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255,255,255,0.9);
+            padding: 20px;
+            border-radius: 5px;
+            display: none;
+            z-index: 1000;
+        }
+        
+        /* Trip Monitoring Styles */
+        .trip-status {
+            background: #e7f3ff;
+            border: 1px solid #0066cc;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        
+        .anomaly-alert {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 4px;
+            padding: 8px;
+            margin: 5px 0;
+            font-size: 13px;
+        }
+        
+        .anomaly-high { background: #f8d7da; border-color: #f5c6cb; }
+        .anomaly-medium { background: #fff3cd; border-color: #ffeaa7; }
+        .anomaly-low { background: #d1ecf1; border-color: #bee5eb; }
+        
+        /* Chat Interface Styles */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+        
+        #chat-window {
+            flex: 1;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background: #f8f9fa;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        
+        .chat-message {
+            margin: 8px 0;
+            padding: 8px;
+            border-radius: 6px;
+        }
+        
+        .chat-user {
+            background: #007bff;
+            color: white;
+            margin-left: 20px;
+        }
+        
+        .chat-assistant {
+            background: #e9ecef;
+            color: #333;
+            margin-right: 20px;
+        }
+        
+        .chat-input-container {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+        }
+        
+        #chat-input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        
+        .chat-suggestions {
+            margin: 5px 0;
+            font-size: 11px;
+        }
+        
+        .suggestion-btn {
+            background: #e9ecef;
+            border: 1px solid #ced4da;
+            padding: 4px 8px;
+            margin: 2px;
+            border-radius: 12px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+        
+        .suggestion-btn:hover {
+            background: #dee2e6;
+        }
+        
+        /* Scrollable content areas */
+        #risk-details, #imd-warnings {
+            max-height: 120px;
+            overflow-y: auto;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .status-active { background: #28a745; }
+        .status-warning { background: #ffc107; }
+        .status-danger { background: #dc3545; }
+        .status-inactive { background: #6c757d; }
+    </style>
+</head>
+<body>
+    <!-- Update controls layout -->
+    <div id="controls">
+        <div class="control-group">
+            <input type="text" id="city" placeholder="Enter city name" style="width: 150px;">
+            <button onclick="analyzeCity()" class="btn btn-primary">Analyze Risk</button>
+            <button onclick="getCurrentLocation()" class="btn btn-success">Use My Location</button>
+        </div>
+
+        <div class="control-group">
+            <button onclick="showEvacuationRoute()" class="btn btn-warning">Show Nearest Shelter</button>
+            <button onclick="showAllEvacuationRoutes()" class="btn btn-info">Show All Shelters</button>
+        </div>
+
+        <div class="control-group">
+            <button onclick="getForecast(7)" class="btn btn-info">3-Day Forecast</button>
+        </div>
+
+        <div class="control-group">
+            <input type="text" id="batch-cities" placeholder="Mumbai, Delhi..." style="width: 150px;">
+            <button onclick="analyzeBatch()" class="btn btn-danger">Batch Analyze</button>
+        </div>
+    </div>
+    
+    <!-- Update info-panel structure -->
+    <div id="info-panel">
+        <div class="info-panel-content">
+            <!-- Trip Monitoring Section -->
+            <div class="panel-section">
+                <h3>
+                    <span class="status-indicator status-inactive" id="trip-status-indicator"></span>
+                    Trip Monitoring
+                </h3>
+                <div id="trip-status">
+                    <button onclick="startTripMonitoring()" class="btn btn-success" id="start-trip-btn">Start Monitoring</button>
+                    <button onclick="stopTripMonitoring()" class="btn btn-danger" id="stop-trip-btn" style="display: none;">Stop Monitoring</button>
+                </div>
+                <div id="trip-summary" style="display: none;"></div>
+                <div id="anomaly-alerts"></div>
+            </div>
+            
+            <!-- Risk Assessment Section -->
+            <div class="panel-section">
+                <h3>Risk Assessment</h3>
+                <div id="risk-details"></div>
+            </div>
+            
+            <!-- IMD Warnings Section -->
+            <div class="panel-section">
+                <h3>Official Warnings</h3>
+                <div id="imd-warnings"></div>
+            </div>
+            
+            <!-- AI Chat Section -->
+            <div class="panel-section chat-container">
+                <h3>AI Route Assistant</h3>
+                <div class="chat-suggestions">
+                    <span class="suggestion-btn" onclick="askQuickQuestion('Is my route safe?')">Is my route safe?</span>
+                    <span class="suggestion-btn" onclick="askQuickQuestion('What should I pack?')">What should I pack?</span>
+                    <span class="suggestion-btn" onclick="askQuickQuestion('Explain the risks')">Explain risks</span>
+                </div>
+                <div id="chat-window"></div>
+                <div class="chat-input-container">
+                    <input type="text" id="chat-input" placeholder="Ask about your route or safety...">
+                    <button onclick="sendChatMessage()" class="btn btn-primary">Send</button>
+                </div>
+            </div>
+
+            <!-- Forecast Section -->
+            <div class="panel-section" id="forecast-section" style="display: none;">
+                <h3 id="forecast-title">Future Forecast</h3>
+                <div id="forecast-details"></div>
+                <h4>AI Guidance</h4>
+                <div id="forecast-ai-guidance"></div>
+            </div>
+
+            <!-- Batch Analysis Section -->
+            <div class="panel-section" id="batch-section" style="display: none;">
+                <h3>Batch Analysis Summary</h3>
+                <div id="batch-summary-table"></div>
+                <h4>AI Guidance</h4>
+                <div id="batch-ai-guidance"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="map"></div>
+    <div class="loading" id="loading">Processing...</div>
+    
+    <script>
+        // Global variables
+        let map;
+        let currentMarker = null;
+        let userLocation = null;
+        let currentCity = null;
+        let currentPredictions = null;
+        let currentRoute = null;
+        let routeCoordinates = null;
+        let tripActive = false;
+        let tripSessionId = null;
+        let shelterMarkers = []; // Add missing shelterMarkers array
+
+        // Fetch Mapbox token from server (add this new endpoint)
+        let MAPBOX_TOKEN = '';
+        
+        async function fetchMapboxToken() {
+            try {
+                const response = await fetch('/api/config/mapbox-token');
+                const data = await response.json();
+                MAPBOX_TOKEN = data.token;
+                return MAPBOX_TOKEN;
+            } catch (error) {
+                console.error('Error fetching Mapbox token:', error);
+                return null;
+            }
+        }
+
+        // Initialize map
+        async function initializeMap() {
+            try {
+                // Fetch token from server
+                const token = await fetchMapboxToken();
+                if (!token) {
+                    throw new Error('Could not fetch Mapbox token');
+                }
+                
+                // Set Mapbox access token
+                mapboxgl.accessToken = token;
+                
+                // Create map instance
+                map = new mapboxgl.Map({
+                    container: 'map',
+                    style: 'mapbox://styles/mapbox/streets-v11',
+                    center: [78.9629, 20.5937], // India center
+                    zoom: 4
+                });
+
+                map.on('load', function() {
+                    // Add isochrone source first
+                    map.addSource('isochrone', {
+                        type: 'geojson',
+                        data: {
+                            type: 'Feature',
+                            properties: {},
+                            geometry: {
+                                type: 'Polygon',
+                                coordinates: []
+                            }
+                        }
+                    });
+
+                    // Add isochrone layers
+                    map.addLayer({
+                        id: 'isochrone-area',
+                        type: 'fill',
+                        source: 'isochrone',
+                        layout: {},
+                        paint: {
+                            'fill-color': '#6706ce',
+                            'fill-opacity': 0.3,
+                            'fill-outline-color': '#4a0599'
+                        }
+                    });
+
+                    map.addLayer({
+                        id: 'isochrone-outline',
+                        type: 'line',
+                        source: 'isochrone',
+                        layout: {},
+                        paint: {
+                            'line-color': '#4a0599',
+                            'line-width': 2
+                        }
+                    });
+
+                    // Add route source and layer last
+                    map.addSource('route', {
+                        type: 'geojson',
+                        data: {
+                            type: 'Feature',
+                            properties: {},
+                            geometry: {
+                                type: 'LineString',
+                                coordinates: []
+                            }
+                        }
+                    });
+
+                    map.addLayer({
+                        id: 'route',
+                        type: 'line',
+                        source: 'route',
+                        layout: {
+                            'line-join': 'round',
+                            'line-cap': 'round'
+                        },
+                        paint: {
+                            'line-color': '#3887be',
+                            'line-width': 5,
+                            'line-opacity': 0.75
+                        }
+                    });
+                });
+
+                // Add navigation control
+                map.addControl(new mapboxgl.NavigationControl(), 'top-right');
+
+                return true;
+            } catch (error) {
+                console.error('Map initialization error:', error);
+                return false;
+            }
+        }
+
+        // Call initialize map when window loads
+        window.onload = async function() {
+            try {
+                const token = await fetchMapboxToken();
+                if (!token) {
+                    throw new Error('Could not fetch Mapbox token');
+                }
+                
+                mapboxgl.accessToken = token;
+                
+                map = new mapboxgl.Map({
+                    container: 'map',
+                    style: 'mapbox://styles/mapbox/streets-v11',
+                    center: [78.9629, 20.5937],
+                    zoom: 4
+                });
+
+                map.on('load', () => {
+                    // Add route source
+                    map.addSource('route', {
+                        type: 'geojson',
+                        data: {
+                            type: 'Feature',
+                            properties: {},
+                            geometry: {
+                                type: 'LineString',
+                                coordinates: []
+                            }
+                        }
+                    });
+
+                    // Add route layer
+                    map.addLayer({
+                        id: 'route',
+                        type: 'line',
+                        source: 'route',
+                        layout: {
+                            'line-join': 'round',
+                            'line-cap': 'round'
+                        },
+                        paint: {
+                            'line-color': '#3887be',
+                            'line-width': 5,
+                            'line-opacity': 0.75
+                        }
+                    });
+                });
+
+                // Setup event listeners
+                document.getElementById('chat-input').addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        sendChatMessage();
+                    }
+                });
+            } catch (error) {
+                console.error('Map initialization error:', error);
+                document.getElementById('map').innerHTML = 'Error loading map. Please refresh.';
+            }
+        };
+
+        // Update analyzeCity function
+        async function analyzeCity() {
+            const cityInput = document.getElementById('city');
+            const city = cityInput.value.trim();
+            
+            if (!city) {
+                alert('Please enter a city name');
+                return;
+            }
+
+            document.getElementById('loading').style.display = 'block';
+
+            try {
+                // Clear previous marker if exists
+                if (currentMarker) {
+                    currentMarker.remove();
+                }
+
+                const response = await fetch(`/api/analyze?city=${encodeURIComponent(city)}`);
+                const data = await response.json();
+
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+
+                if (data.location) {
+                    currentCity = city;
+                    currentPredictions = data.predictions;
+                    const coords = [data.location.longitude, data.location.latitude];
+                    userLocation = coords;
+
+                    // Add new marker
+                    currentMarker = new mapboxgl.Marker({ color: '#FF0000' })
+                        .setLngLat(coords)
+                        .addTo(map);
+
+                    // Fly to location
+                    map.flyTo({
+                        center: coords,
+                        zoom: 12,
+                        essential: true
+                    });
+
+                    // Update displays
+                    updateRiskDisplay(data.predictions, data.highest_risk);
+                    if (data.imd_warnings) {
+                        updateIMDWarnings(data.imd_warnings);
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error analyzing city. Please try again.');
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        // Fixed getCurrentLocation function
+        async function getCurrentLocation() {
+            if (!navigator.geolocation) {
+                alert('Geolocation is not supported by your browser');
+                return;
+            }
+
+            document.getElementById('loading').style.display = 'block';
+
+            try {
+                const position = await new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(resolve, reject, {
+                        enableHighAccuracy: true,
+                        timeout: 5000,
+                        maximumAge: 0
+                    });
+                });
+
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+
+                // Clear existing marker
+                if (currentMarker) currentMarker.remove();
+
+                // Add new marker
+                currentMarker = new mapboxgl.Marker({ color: '#FF0000' })
+                    .setLngLat([lon, lat])
+                    .addTo(map);
+
+                userLocation = [lon, lat];
+
+                // Center map
+                map.flyTo({
+                    center: [lon, lat],
+                    zoom: 14,
+                    essential: true
+                });
+
+                // Get risk analysis
+                const response = await fetch(`/api/analyze-location?lat=${lat}&lon=${lon}`);
+                const data = await response.json();
+
+                if (data.error) throw new Error(data.error);
+
+                // Update UI
+                currentPredictions = data.predictions;
+                updateRiskDisplay(data.predictions, data.highest_risk);
+
+            } catch (error) {
+                console.error('Location error:', error);
+                alert('Error getting your location: ' + error.message);
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        // 3. Fixed showEvacuationRoute function
+        async function showEvacuationRoute() {
+            if (!userLocation) {
+                alert('Please select a location first');
+                return;
+            }
+
+            document.getElementById('loading').style.display = 'block';
+
+            try {
+                const response = await fetch(`/api/evacuation-route?lat=${userLocation[1]}&lon=${userLocation[0]}`);
+                const data = await response.json();
+
+                if (data.error) throw new Error(data.error);
+
+                // Store route data globally for monitoring
+                currentRoute = data.route;
+                routeCoordinates = data.route.geometry.coordinates;
+
+                // Clear existing markers and routes
+                if (currentMarker) currentMarker.remove();
+                shelterMarkers.forEach(marker => marker.remove());
+                shelterMarkers = [];
+
+                // Add user location marker
+                currentMarker = new mapboxgl.Marker({ color: '#FF0000' })
+                    .setLngLat(userLocation)
+                    .addTo(map);
+
+                // Display the route
+                if (map.getSource('route')) {
+                    map.getSource('route').setData({
+                        type: 'Feature',
+                        properties: {},
+                        geometry: data.route.geometry
+                    });
+                }
+
+                // Add shelter marker
+                const shelter = data.shelter;
+                const shelterMarker = new mapboxgl.Marker({ color: '#28a745' })
+                    .setLngLat(shelter.coordinates)
+                    .setPopup(new mapboxgl.Popup({ offset: 25 })
+                        .setHTML(`
+                            <div style="padding: 10px;">
+                                <h3>${shelter.name}</h3>
+                                <p><strong>Type:</strong> ${shelter.type}</p>
+                                <p><strong>Capacity:</strong> ${shelter.capacity}</p>
+                                <p><strong>Distance:</strong> ${(data.route.distance/1000).toFixed(1)} km</p>
+                                <p><strong>ETA:</strong> ${Math.round(data.route.duration/60)} mins</p>
+                            </div>
+                        `))
+                    .addTo(map);
+                shelterMarkers.push(shelterMarker);
+
+                // Fit map to show route
+                const coordinates = data.route.geometry.coordinates;
+                const bounds = coordinates.reduce((bounds, coord) => {
+                    return bounds.extend(coord);
+                }, new mapboxgl.LngLatBounds(coordinates[0], coordinates[0]));
+                
+                map.fitBounds(bounds, { padding: 50 });
+
+                // Enable trip monitoring button
+                document.getElementById('start-trip-btn').disabled = false;
+                document.getElementById('start-trip-btn').textContent = 'Start Route Monitoring';
+
+                alert(`Route to ${shelter.name} calculated! You can now start trip monitoring.`);
+
+            } catch (error) {
+                console.error('Route error:', error);
+                alert('Error showing evacuation route: ' + error.message);
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        // Update showAllEvacuationRoutes to work without selection buttons
+        async function showAllEvacuationRoutes() {
+            if (!userLocation) {
+                alert('Please select a location first');
+                return;
+            }
+
+            document.getElementById('loading').style.display = 'block';
+
+            try {
+                // Clear existing shelter markers and routes
+                shelterMarkers.forEach(marker => marker.remove());
+                shelterMarkers = [];
+                
+                // Clear existing route layers
+                const style = map.getStyle();
+                if (style && style.layers) {
+                    style.layers.forEach((layer) => {
+                        if (layer.id.startsWith('route-')) {
+                            try {
+                                map.removeLayer(layer.id);
+                                map.removeSource(layer.id);
+                            } catch (e) {
+                                console.warn('Error removing layer:', e);
+                            }
+                        }
+                    });
+                }
+
+                const response = await fetch(`/api/all-evacuation-routes?lat=${userLocation[1]}&lon=${userLocation[0]}`);
+                const data = await response.json();
+
+                if (data.error) throw new Error(data.error);
+                if (!data.routes || data.routes.length === 0) {
+                    throw new Error('No evacuation routes found');
+                }
+
+                const bounds = new mapboxgl.LngLatBounds();
+
+                // Display all routes and shelters
+                data.routes.forEach((route, index) => {
+                    if (!route.geometry || !route.geometry.coordinates || route.geometry.coordinates.length === 0) {
+                        console.warn('Invalid route geometry:', route);
+                        return;
+                    }
+
+                    const routeId = `route-${index}`;
+                    
+                    try {
+                        // Add route layer
+                        map.addSource(routeId, {
+                            type: 'geojson',
+                            data: {
+                                type: 'Feature',
+                                properties: {},
+                                geometry: route.geometry
+                            }
+                        });
+
+                        map.addLayer({
+                            id: routeId,
+                            type: 'line',
+                            source: routeId,
+                            layout: {
+                                'line-join': 'round',
+                                'line-cap': 'round'
+                            },
+                            paint: {
+                                'line-color': '#3887be',
+                                'line-width': 3,
+                                'line-opacity': 0.6
+                            }
+                        });
+
+                        // Add shelter marker with enhanced popup (without selection button)
+                        if (route.shelter && route.shelter.coordinates) {
+                            const shelter = route.shelter;
+                            const marker = new mapboxgl.Marker({ color: '#28a745' })
+                                .setLngLat(shelter.coordinates)
+                                .setPopup(new mapboxgl.Popup({ 
+                                    offset: 25,
+                                    closeButton: false,
+                                    closeOnClick: false
+                                })
+                                .setHTML(`
+                                    <div style="padding: 10px;">
+                                        <h3 style="margin: 0 0 10px 0;">${shelter.name}</h3>
+                                        <p style="margin: 5px 0;"><strong>Type:</strong> ${shelter.type}</p>
+                                        <p style="margin: 5px 0;"><strong>Capacity:</strong> ${shelter.capacity}</p>
+                                        <p style="margin: 5px 0;"><strong>Distance:</strong> ${(route.distance/1000).toFixed(1)} km</p>
+                                        <p style="margin: 5px 0;"><strong>ETA:</strong> ${Math.round(route.duration/60)} mins</p>
+                                        ${shelter.description ? `<p style="margin: 5px 0;"><small>${shelter.description}</small></p>` : ''}
+                                    </div>
+                                `))
+                                .addTo(map);
+
+                            // Show popup on hover
+                            marker.getElement().addEventListener('mouseenter', () => marker.togglePopup());
+                            marker.getElement().addEventListener('mouseleave', () => marker.togglePopup());
+                            
+                            shelterMarkers.push(marker);
+                            bounds.extend(shelter.coordinates);
+                        }
+
+                        // Extend bounds with route coordinates
+                        route.geometry.coordinates.forEach(coord => bounds.extend(coord));
+                    } catch (e) {
+                        console.warn(`Error adding route ${routeId}:`, e);
+                    }
+                });
+
+                // Fit map to show all routes and markers
+                if (!bounds.isEmpty()) {
+                    map.fitBounds(bounds, { 
+                        padding: 50,
+                        maxZoom: 15
+                    });
+                }
+
+            } catch (error) {
+                console.error('Error showing all routes:', error);
+                alert('Error showing evacuation routes: ' + error.message);
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        // Remove the problematic selectRouteForMonitoring function reference
+        // The monitoring will work with the route selected by showEvacuationRoute()
+
+        // Update startTripMonitoring function
+        async function startTripMonitoring() {
+            if (!currentRoute || !routeCoordinates) {
+                alert('Please select an evacuation route first by clicking "Show Nearest Shelter" or selecting a route from "Show All Shelters"');
+                return;
+            }
+
+            try {
+                // Start trip monitoring with the selected route
+                const response = await fetch('/api/start-trip', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        route: routeCoordinates,
+                        session_id: Date.now().toString()
+                    })
+                });
+
+                const data = await response.json();
+                if (data.error) throw new Error(data.error);
+
+                tripSessionId = data.session_id;
+                tripActive = true;
+
+                // Update UI
+                document.getElementById('start-trip-btn').style.display = 'none';
+                document.getElementById('stop-trip-btn').style.display = 'inline';
+                document.getElementById('trip-status-indicator').className = 'status-indicator status-active';
+                document.getElementById('trip-summary').style.display = 'block';
+                document.getElementById('trip-summary').innerHTML = `
+                    <p><strong>Route Monitoring Active</strong></p>
+                    <p>Route: ${routeCoordinates.length} points</p>
+                    <p>Session: ${tripSessionId}</p>
+                `;
+
+                // Start location updates
+                startLocationUpdates();
+
+                alert('Trip monitoring started! Your location will be tracked for anomalies.');
+
+            } catch (error) {
+                console.error('Error starting trip:', error);
+                alert('Error starting trip monitoring: ' + error.message);
+            }
+        }
+
+        function startLocationUpdates() {
+            if (!tripActive) return;
+
+            // Start watching position
+            const watchId = navigator.geolocation.watchPosition(
+                async position => {
+                    const { latitude, longitude } = position.coords;
+
+                    try {
+                        const response = await fetch('/api/update-location', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                lat: latitude,
+                                lon: longitude,
+                                session_id: tripSessionId
+                            })
+                        });
+
+                        const data = await response.json();
+                        
+                        // Update trip summary
+                        if (data.trip_summary) {
+                            document.getElementById('trip-summary').innerHTML = `
+                                <p>Distance: ${data.trip_summary.total_distance_km.toFixed(1)} km</p>
+                                <p>Time: ${data.trip_summary.elapsed_time_minutes.toFixed(0)} mins</p>
+                                <p>Avg Speed: ${data.trip_summary.average_speed_kmh.toFixed(1)} km/h</p>
+                            `;
+                        }
+
+                        // Show anomalies if any
+                        if (data.anomalies && data.anomalies.length > 0) {
+                            const alertsDiv = document.getElementById('anomaly-alerts');
+                            alertsDiv.innerHTML = data.anomalies.map(anomaly => `
+                                <div class="anomaly-alert anomaly-${anomaly.severity.toLowerCase()}">
+                                    <strong>${anomaly.type}:</strong> ${anomaly.message}
+                                </div>
+                            `).join('');
+                        }
+
+                        // Update status indicator based on anomalies
+                        const statusIndicator = document.getElementById('trip-status-indicator');
+                        if (data.emergency_alert) {
+                            statusIndicator.className = 'status-indicator status-danger';
+                        } else if (data.anomalies && data.anomalies.length > 0) {
+                            statusIndicator.className = 'status-indicator status-warning';
+                        }
+
+                    } catch (error) {
+                        console.error('Location update error:', error);
+                    }
+                },
+                error => {
+                    console.error('Location tracking error:', error);
+                    alert('Error tracking location: ' + error.message);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 5000,
+                    maximumAge: 0
+                }
+            );
+
+            // Store watch ID for cleanup
+            window.currentLocationWatch = watchId;
+        }
+
+        async function stopTripMonitoring() {
+            if (!tripActive) return;
+
+            try {
+                // Stop location updates
+                if (window.currentLocationWatch) {
+                    navigator.geolocation.clearWatch(window.currentLocationWatch);
+                }
+
+                // Stop trip monitoring
+                const response = await fetch('/api/stop-trip', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_id: tripSessionId
+                    })
+                });
+
+                const data = await response.json();
+
+                // Reset state
+                tripActive = false;
+                tripSessionId = null;
+
+                // Update UI
+                document.getElementById('start-trip-btn').style.display = 'inline';
+                document.getElementById('stop-trip-btn').style.display = 'none';
+                document.getElementById('trip-status-indicator').className = 'status-indicator status-inactive';
+                document.getElementById('anomaly-alerts').innerHTML = '';
+
+                // Show final summary
+                if (data.final_summary) {
+                    document.getElementById('trip-summary').innerHTML = `
+                        <h4>Trip Complete</h4>
+                        <p>Total Distance: ${data.final_summary.total_distance_km.toFixed(1)} km</p>
+                        <p>Total Time: ${data.final_summary.elapsed_time_minutes.toFixed(0)} mins</p>
+                        <p>Average Speed: ${data.final_summary.average_speed_kmh.toFixed(1)} km/h</p>
+                    `;
+                }
+
+            } catch (error) {
+                console.error('Error stopping trip:', error);
+                alert('Error stopping trip monitoring: ' + error.message);
+            }
+        }
+
+        // New function to show info panel sections
+        function showInfoPanel(sectionId) {
+            const sections = ['forecast-section', 'batch-section'];
+            sections.forEach(id => {
+                const section = document.getElementById(id);
+                if (id === sectionId) {
+                    section.style.display = 'block';
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+        }
+
+        // New function to get weather forecast
+        async function getForecast(days) {
+            const city = document.getElementById('city').value.trim();
+            if (!city) {
+                alert('Please enter a city name first');
+                return;
+            }
+
+            document.getElementById('loading').style.display = 'block';
+            showInfoPanel('forecast-section');
+
+            try {
+                const response = await fetch(`/api/forecast?city=${encodeURIComponent(city)}&days=${days}`);
+                const data = await response.json();
+
+                if (data.error) throw new Error(data.error);
+
+                document.getElementById('forecast-title').textContent = `${days}-Day Forecast for ${data.city}`;
+                const forecastDetails = document.getElementById('forecast-details');
+                forecastDetails.innerHTML = '';
+                
+                data.forecast.forEach(day => {
+                    const dayDiv = document.createElement('div');
+                    dayDiv.className = 'risk-box';
+                    
+                    let high_risks = Object.entries(day.risks)
+                        .filter(([_, r]) => r.risk_level === 'High')
+                        .map(([d, _]) => d);
+                    
+                    let riskHtml = 'Risk: Low';
+                    if (high_risks.length > 0) {
+                        dayDiv.classList.add('risk-high');
+                        riskHtml = `<strong>High Risk: ${high_risks.join(', ')}</strong>`;
+                    }
+
+                    dayDiv.innerHTML = `
+                        <strong>${day.date}</strong> (${day.weather.condition}, ${day.weather.temp}°C)<br>
+                        ${riskHtml}
+                    `;
+                    forecastDetails.appendChild(dayDiv);
+                });
+
+                document.getElementById('forecast-ai-guidance').innerHTML = data.ai_guidance.replace(/\n/g, '<br>');
+
+            } catch (error) {
+                console.error('Forecast error:', error);
+                alert('Error getting forecast: ' + error.message);
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        // New function to analyze batch of cities
+        async function analyzeBatch() {
+            const citiesInput = document.getElementById('batch-cities').value.trim();
+            if (!citiesInput) {
+                alert('Please enter comma-separated city names');
+                return;
+            }
+            const cities = citiesInput.split(',').map(c => c.trim()).filter(c => c);
+
+            document.getElementById('loading').style.display = 'block';
+            showInfoPanel('batch-section');
+
+            try {
+                const response = await fetch('/api/batch-analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cities })
+                });
+                const data = await response.json();
+
+                if (data.error) throw new Error(data.error);
+
+                const summaryTable = document.getElementById('batch-summary-table');
+                let tableHtml = `
+                    <table style="width: 100%; font-size: 12px; border-collapse: collapse;">
+                        <thead style="text-align: left;">
+                            <tr><th>City</th><th>Top Risk</th><th>Level</th><th>IMD</th></tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                data.summary.forEach(item => {
+                    tableHtml += `
+                        <tr style="border-top: 1px solid #eee;">
+                            <td style="padding: 4px;">${item.city}</td>
+                            <td style="padding: 4px;">${item.highest_risk}</td>
+                            <td style="padding: 4px;">${item.risk_level}</td>
+                            <td style="padding: 4px;">${item.imd_alert}</td>
+                        </tr>
+                    `;
+                });
+                
+                tableHtml += '</tbody></table>';
+                summaryTable.innerHTML = tableHtml;
+
+                document.getElementById('batch-ai-guidance').innerHTML = data.ai_guidance.replace(/\n/g, '<br>');
+
+            } catch (error) {
+                console.error('Batch analysis error:', error);
+                alert('Error during batch analysis: ' + error.message);
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        // Add missing updateRiskDisplay function
+        function updateRiskDisplay(predictions, highestRisk) {
+            const riskDetails = document.getElementById('risk-details');
+            riskDetails.innerHTML = '';
+            
+            if (!predictions) {
+                riskDetails.innerHTML = '<p>No risk data available</p>';
+                return;
+            }
+            
+            // Sort predictions by risk level and probability
+            const sortedPredictions = Object.entries(predictions).sort((a, b) => {
+                const aProb = a[1].probability || 0;
+                const bProb = b[1].probability || 0;
+                return bProb - aProb;
+            });
+            
+            sortedPredictions.forEach(([disaster, data]) => {
+                const riskLevel = data.risk_level || 'Low';
+                const probability = data.probability || 0;
+                
+                const riskBox = document.createElement('div');
+                riskBox.className = `risk-box risk-${riskLevel.toLowerCase()}`;
+                
+                // Add risk indicator icon
+                let riskIcon = "✅";
+                if (riskLevel === 'High') riskIcon = "🚨";
+                else if (riskLevel === 'Medium') riskIcon = "⚠️";
+                
+                riskBox.innerHTML = `
+                    ${riskIcon} <strong>${disaster.charAt(0).toUpperCase() + disaster.slice(1)}</strong><br>
+                    Risk Level: ${riskLevel} (${(probability * 100).toFixed(1)}%)
+                `;
+                
+                riskDetails.appendChild(riskBox);
+            });
+        }
+
+        // Add missing updateIMDWarnings function
+        function updateIMDWarnings(warnings) {
+            const imdWarnings = document.getElementById('imd-warnings');
+            imdWarnings.innerHTML = '';
+            
+            if (!warnings || warnings.length === 0) {
+                imdWarnings.innerHTML = '<p>No official warnings</p>';
+                return;
+            }
+
+            warnings.forEach(warning => {
+                const warningDiv = document.createElement('div');
+                warningDiv.className = 'anomaly-alert anomaly-medium';
+                warningDiv.innerHTML = `
+                    <strong>⚠️ ${warning.type}</strong><br>
+                    <small>${warning.description || 'Official weather warning issued'}</small>
+                `;
+                
+                imdWarnings.appendChild(warningDiv);
+            });
+        }
+
+        // Add missing sendChatMessage function
+        async function sendChatMessage() {
+            const chatInput = document.getElementById('chat-input');
+            const message = chatInput.value.trim();
+            
+            if (!message) return;
+
+            addChatMessage(message, 'user');
+            chatInput.value = '';
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        question: message,
+                        context: {
+                            city: currentCity,
+                            predictions: currentPredictions,
+                            location: userLocation ? {
+                                latitude: userLocation[1],
+                                longitude: userLocation[0]
+                            } : null
+                        }
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.error) throw new Error(data.error);
+                
+                addChatMessage(data.answer, 'assistant');
+
+            } catch (error) {
+                console.error('Chat error:', error);
+                addChatMessage('Sorry, I encountered an error. Please try again.', 'assistant');
+            }
+        }
+
+        // Add missing addChatMessage function
+        function addChatMessage(message, sender) {
+            const chatWindow = document.getElementById('chat-window');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message chat-${sender}`;
+            messageDiv.textContent = message;
+            chatWindow.appendChild(messageDiv);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+
+        // Add missing askQuickQuestion function
+        function askQuickQuestion(question) {
+            document.getElementById('chat-input').value = question;
+            sendChatMessage();
+        }
+
+        // Add missing clearMapLayers function
+        function clearMapLayers() {
+            if (currentMarker) {
+                currentMarker.remove();
+                currentMarker = null;
+            }
+            
+            // Clear shelter markers
+            shelterMarkers.forEach(marker => marker.remove());
+            shelterMarkers = [];
+            
+            // Clear route data
+            if (map.getSource('route')) {
+                map.getSource('route').setData({
+                    type: 'Feature',
+                    properties: {},
+                    geometry: {
+                        type: 'LineString',
+                        coordinates: []
+                    }
+                });
+            }
+            
+            // Clear route layers that start with 'route-'
+            if (map.getStyle()) {
+                const style = map.getStyle();
+                if (style && style.layers) {
+                    style.layers.forEach((layer) => {
+                        if (layer.id.startsWith('route-') && layer.id !== 'route') {
+                            try {
+                                map.removeLayer(layer.id);
+                                map.removeSource(layer.id);
+                            } catch (e) {
+                                console.warn('Error removing layer:', e);
+                            }
+                        }
+                    });
+                }
+            }
+        }
+
+        // Initial call to load map
+        initializeMap();
+    </script>
+</body>
+</html>
