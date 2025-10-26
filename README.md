@@ -346,10 +346,6 @@ http://localhost:5000
 Create a `.env` file in the root directory:
 
 ```bash
-# OpenRouter AI API Key
-# Get it from: https://openrouter.ai/
-OPENROUTER_API_KEY=sk-or-v1-your-key-here
-
 # Mapbox Access Token
 # Get it from: https://www.mapbox.com/
 MAPBOX_ACCESS_TOKEN=pk.your-token-here
@@ -366,18 +362,12 @@ FLASK_PORT=5000
 
 ### API Keys Required
 
-1. **OpenRouter API** (Free tier available)
-   - Sign up: https://openrouter.ai/
-   - Navigate to API Keys section
-   - Create new key
-   - Models used: GPT-4, Claude 3.5, DeepSeek, Mistral
-
-2. **Mapbox** (Free tier: 50,000 requests/month)
+1. **Mapbox** (Free tier: 50,000 requests/month)
    - Sign up: https://www.mapbox.com/
    - Go to Account → Tokens
    - Create new token with all scopes enabled
 
-3. **WeatherAPI** (Free tier: 1M calls/month)
+2. **WeatherAPI** (Free tier: 1M calls/month)
    - Sign up: https://www.weatherapi.com/
    - Copy API key from dashboard
 
