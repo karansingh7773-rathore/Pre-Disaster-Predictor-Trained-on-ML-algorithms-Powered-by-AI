@@ -1,22 +1,12 @@
 #app.py
 from flask import Flask, request, jsonify, send_from_directory
-from server import EnhancedTravelRiskPredictor
-from data_fetchers import EnhancedDataFetcher
-from ai_engine import DisasterChatbot
+from server import EnhancedTravelRiskPredictor, EnhancedDataFetcher, DisasterChatbot
 from mapbox_integration import MapboxAPI
 from anomaly_detector import AnomalyDetector
 import json
 import time
 import os
-import logging
 from dotenv import load_dotenv
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
 
 # Load environment variables
 load_dotenv()
@@ -43,12 +33,9 @@ def analyze_city():
     if not city:
         return jsonify({'error': 'City name required'}), 400
     
-    logger.info(f"Analyzing city: {city}")
-
     # Get location data
     location_data = data_fetcher.get_comprehensive_location_data(city)
     if not location_data:
-        logger.error(f"Could not fetch data for city: {city}")
         return jsonify({'error': 'Could not fetch city data'}), 404
     
     # Get predictions
@@ -110,7 +97,7 @@ def get_evacuation_route():
             return jsonify({'error': 'Could not calculate route to shelter'}), 404
             
     except Exception as e:
-        logger.error(f"Error calculating evacuation route: {e}")
+        print(f"Error calculating evacuation route: {e}")
         return jsonify({'error': f'Route calculation failed: {str(e)}'}), 500
 
 @app.route('/api/analyze-location')
@@ -140,7 +127,7 @@ def analyze_location():
         })
         
     except Exception as e:
-        logger.error(f"Error analyzing location: {e}")
+        print(f"Error analyzing location: {e}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/analyze-coords')
@@ -240,10 +227,10 @@ def update_location():
     
     # Log anomalies for monitoring
     if anomalies:
-        logger.warning(f"ANOMALIES DETECTED for session {session_id}: {anomalies}")
+        print(f"ANOMALIES DETECTED for session {session_id}: {anomalies}")
         
     if emergency_alert:
-        logger.critical(f"EMERGENCY ALERT for session {session_id}!")
+        print(f"EMERGENCY ALERT for session {session_id}!")
         # Here you could integrate with emergency services, send SMS, etc.
     
     return jsonify(response_data)
@@ -303,7 +290,7 @@ def chat():
         })
         
     except Exception as e:
-        logger.error(f"Chat error: {e}")
+        print(f"Chat error: {e}")
         return jsonify({
             'answer': "I'm sorry, I'm having trouble responding right now. Please try again.",
             'error': True
@@ -325,7 +312,7 @@ def explain_risk():
         return jsonify({'explanation': explanation})
         
     except Exception as e:
-        logger.error(f"Risk explanation error: {e}")
+        print(f"Risk explanation error: {e}")
         return jsonify({'error': 'Could not generate explanation'}), 500
 
 @app.route('/api/chat/what-if', methods=['POST'])
@@ -345,7 +332,7 @@ def what_if_scenario():
         return jsonify({'analysis': analysis})
         
     except Exception as e:
-        logger.error(f"What-if analysis error: {e}")
+        print(f"What-if analysis error: {e}")
         return jsonify({'error': 'Could not perform scenario analysis'}), 500
 
 @app.route('/api/all-evacuation-routes')
@@ -386,7 +373,7 @@ def get_all_evacuation_routes():
                         'duration': route_data.get('duration', 0)
                     })
             except Exception as route_error:
-                logger.error(f"Error calculating route to shelter: {route_error}")
+                print(f"Error calculating route to shelter: {route_error}")
                 continue
 
         if not routes:
@@ -395,7 +382,7 @@ def get_all_evacuation_routes():
         return jsonify({'routes': routes})
         
     except Exception as e:
-        logger.error(f"Error calculating shelter routes: {e}")
+        print(f"Error calculating shelter routes: {e}")
         return jsonify({'error': str(e)}), 500
 
 # NEW ENDPOINTS FOR FORECAST AND BATCH ANALYSIS
@@ -435,7 +422,7 @@ def get_forecast():
             if not isinstance(guidance, str):
                 guidance = str(guidance)  # Convert to string if not already
         except Exception as e:
-            logger.error(f"AI guidance error: {e}")
+            print(f"AI guidance error: {e}")
             guidance = "Unable to generate AI guidance at this time."
 
         return jsonify({
@@ -444,7 +431,7 @@ def get_forecast():
             'ai_guidance': guidance
         })
     except Exception as e:
-        logger.error(f"Error getting forecast: {e}")
+        print(f"Error getting forecast: {e}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/batch-analyze', methods=['POST'])
@@ -497,7 +484,7 @@ def batch_analyze():
             'ai_guidance': guidance
         })
     except Exception as e:
-        logger.error(f"Error in batch analysis: {e}")
+        print(f"Error in batch analysis: {e}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/config/mapbox-token')
