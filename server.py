@@ -958,9 +958,10 @@ class TravelRiskPredictor:
             results = {}
             
             for disaster_type, model in self.disaster_models.items():
-                prediction = model.predict(df)[0]
-                probability = model.predict_proba(df)[0, 1]
-                
+                proba = model.predict_proba(df)[0]
+                prediction = np.argmax(proba)
+                probability = proba[1]
+
                 results[disaster_type] = {
                     'risk': bool(prediction),
                     'probability': float(probability),
