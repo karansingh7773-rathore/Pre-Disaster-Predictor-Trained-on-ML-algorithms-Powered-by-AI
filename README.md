@@ -12,18 +12,14 @@
 
 ---
 
-
-##  Table of Contents
+## Table of Contents
 
 - [Overview](#-overview)
 - [Key Features](#-key-features)
-- [Real-World Impact](#-real-world-impact)
+- [Getting Started](#-getting-started)
 - [Technology Stack](#-technology-stack)
 - [System Architecture](#-system-architecture)
 - [Machine Learning Models](#-machine-learning-models)
-- [Installation](#-installation)
-- [Configuration](#-configuration)
-- [Usage](#-usage)
 - [API Documentation](#-api-documentation)
 - [Project Structure](#-project-structure)
 - [Contributing](#-contributing)
@@ -32,7 +28,7 @@
 
 ---
 
-##  Overview
+## Overview
 
 This project is a **comprehensive disaster prediction and emergency management system** that leverages advanced machine learning, real-time weather data integration, and AI-powered recommendations to protect communities from natural disasters.
 
@@ -47,7 +43,7 @@ This project is a **comprehensive disaster prediction and emergency management s
 
 ---
 
-##  Key Features
+## Key Features
 
 ### 1. **Multi-Disaster Risk Prediction**
 -  **Flood Detection**: Analyzes rainfall, elevation, river proximity
@@ -92,44 +88,88 @@ This project is a **comprehensive disaster prediction and emergency management s
 
 ---
 
-##  Real-World Impact
+## Getting Started
 
-### Lives Saved
-- **Early Warning**: Up to 72 hours advance notice for disasters
-- **Evacuation Planning**: Reduces evacuation time by 40%
-- **Resource Optimization**: Helps authorities deploy aid proactively
+This section will guide you through setting up and running the project for the first time.
 
-### Use Cases
+### Prerequisites
+- Python 3.8 or higher
+- pip package manager
+- Git
 
-#### 1. **Emergency Management Authorities**
-- Monitor multiple cities simultaneously
-- Prioritize resource allocation based on AI predictions
-- Coordinate evacuation operations with real-time data
+### Installation
 
-#### 2. **Individual Citizens**
-- Get personalized safety recommendations
-- Plan safe travel routes during disaster warnings
-- Access AI chatbot for 24/7 emergency guidance
+1.  **Clone the Repository**
+    ```bash
+    git clone https://github.com/karansingh7773-rathore/Pre-Disaster-Predictor-Trained-on-ML-algorithms-Powered-by-AI.git
+    cd Pre-Disaster-Predictor-Trained-on-ML-algorithms-Powered-by-AI
+    ```
 
-#### 3. **Tourism Industry**
-- Assess destination safety for travelers
-- Provide crowd density predictions
-- Offer alternative safe destinations
+2.  **Create and Activate a Virtual Environment**
+    ```bash
+    # For Windows
+    python -m venv venv
+    venv\\Scripts\\activate
 
-#### 4. **Urban Planners**
-- Identify high-risk zones for infrastructure development
-- Plan emergency shelter locations
-- Design flood-resistant drainage systems
+    # For macOS/Linux
+    python3 -m venv venv
+    source venv/bin/activate
+    ```
 
-### Success Metrics
-- ✅ **Accuracy**: 85%+ prediction accuracy across disaster types
-- ✅ **Speed**: Real-time predictions in <2 seconds
-- ✅ **Coverage**: Supports 100+ Indian cities
-- ✅ **Scalability**: Can Handles concurrent users
+3.  **Install Dependencies**
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+4.  **Set Up Environment Variables**
+
+    Create a `.env` file in the root directory by copying the example file:
+    ```bash
+    # For Windows
+    copy .env.example .env
+
+    # For macOS/Linux
+    cp .env.example .env
+    ```
+
+    Now, open the `.env` file and add your API keys:
+    ```
+    OPENROUTER_API_KEY="your_openrouter_api_key"
+    MAPBOX_ACCESS_TOKEN="your_mapbox_access_token"
+    WEATHER_API_KEY="your_weather_api_key"
+    ```
+
+### Running the Application
+
+1.  **Train the Models**
+
+    Before you can run the application, you need to train the machine learning models. The system is now configured to train on real data.
+
+    **Using Custom Data:**
+
+    To train the models on your own data, you need to replace the `sample_training_data.csv` file with your dataset. Your file must have the same headers as the sample file, including the feature columns (e.g., `Temperature_°C`, `Rainfall_mm`) and the target columns for each disaster (e.g., `Flood_Risk`, `Earthquake_Risk`).
+
+    Once your data is in place, you can train the models by running the following command and selecting option `6`:
+    ```bash
+    python server.py
+    ```
+    This will train a new set of `.pkl` model files based on your data.
+
+2.  **Run the Flask Server**
+    ```bash
+    python app.py
+    ```
+
+3.  **Access the Application**
+
+    Open your web browser and navigate to:
+    [http://127.0.0.1:5000/](http://127.0.0.1:5000/)
+
+You should now see the application running! You can analyze disaster risks for a city or start a chat with the AI assistant.
 
 ---
 
-##  Technology Stack
+## Technology Stack
 
 ### Backend
 - **Python 3.8+**: Core programming language
@@ -175,7 +215,7 @@ This project is a **comprehensive disaster prediction and emergency management s
 
 ---
 
-##  System Architecture
+## System Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -219,7 +259,7 @@ This project is a **comprehensive disaster prediction and emergency management s
 
 ---
 
-##  Machine Learning Models
+## Machine Learning Models
 
 ### Training Process
 
@@ -275,204 +315,7 @@ drought_model.pkl       (RandomForest, 2.0 MB)
 ```
 
 ---
-
-##  Installation
-
-### Prerequisites
-- Python 3.8 or higher
-- pip package manager
-- Git
-- Virtual environment (recommended)
-
-### Step-by-Step Setup
-
-#### 1. Clone the Repository
-```bash
-git clone https://github.com/karansingh7773-rathore/Pre-Disaster-Predictor-Trained-on-ML-algorithms-Powered-by-AI
-
-cd disaster-predictor-ai
-```
-
-#### 2. Create Virtual Environment
-```bash
-# Windows
-python -m venv venv
-venv\Scripts\activate
-
-# Linux/Mac
-python3 -m venv venv
-source venv/bin/activate
-```
-
-#### 3. Install Dependencies
-```bash
-pip install -r requirements.txt
-```
-
-#### 4. Setup Environment Variables
-```bash
-# Copy the example file
-copy .env.example .env  # Windows
-cp .env.example .env    # Linux/Mac
-
-# Edit .env with your API keys
-notepad .env  # Windows
-nano .env     # Linux/Mac
-```
-
-#### 5. Train ML Models (First Time Only)
-```bash
-python server.py
-# Select option 6 to train all models
-# This will create .pkl model files
-```
-
-#### 6. Run the Application
-```bash
-python app.py
-```
-
-#### 7. Access the Web Interface
-Open your browser and navigate to:
-```
-http://localhost:5000
-```
-
----
-
-##  Configuration
-
-### Environment Variables
-
-Create a `.env` file in the root directory:
-
-```bash
-# Mapbox Access Token
-# Get it from: https://www.mapbox.com/
-MAPBOX_ACCESS_TOKEN=pk.your-token-here
-
-# Weather API Key
-# Get it from: https://www.weatherapi.com/
-WEATHER_API_KEY=your-key-here
-
-# Flask Configuration
-FLASK_SECRET_KEY=generate-a-random-secret-key
-FLASK_DEBUG=True
-FLASK_PORT=5000
-```
-
-### API Keys Required
-
-1. **Mapbox** (Free tier: 50,000 requests/month)
-   - Sign up: https://www.mapbox.com/
-   - Go to Account → Tokens
-   - Create new token with all scopes enabled
-
-2. **WeatherAPI** (Free tier: 1M calls/month)
-   - Sign up: https://www.weatherapi.com/
-   - Copy API key from dashboard
-
-### Security Best Practices
-
- **Never commit `.env` file to Git!**
-
-```bash
-# Already in .gitignore
-.env
-*.pkl
-__pycache__/
-```
-
----
-
-##  Usage
-
-### 1. City Risk Analysis
-
-#### Via Web Interface:
-1. Enter city name (e.g., "Mumbai", "Delhi", "Chennai")
-2. Click **"Analyze Risk"**
-3. View predictions on map with color-coded markers
-4. Check AI-generated safety recommendations
-
-#### Via API:
-```python
-import requests
-
-response = requests.get('http://localhost:5000/api/analyze?city=Mumbai')
-data = response.json()
-
-print(data['predictions'])
-# Output:
-# {
-#   'flood': {'risk': True, 'probability': 0.85, 'risk_level': 'High'},
-#   'earthquake': {'risk': False, 'probability': 0.23, 'risk_level': 'Low'},
-#   ...
-# }
-```
-
-### 2. AI Chat Assistant
-
-#### Example Conversations:
-```
-User: "What should I pack for a flood evacuation?"
-AI: "Essential flood evacuation kit:
-     • Waterproof bags for documents
-     • 3 days of drinking water
-     • Non-perishable food
-     • First aid kit
-     • Flashlight and batteries
-     • Emergency contacts list"
-
-User: "Explain why Mumbai has high flood risk today?"
-AI: "Mumbai's current high flood risk is due to:
-     1. Heavy monsoon rainfall (150mm recorded)
-     2. Low elevation coastal areas
-     3. High tide timing coinciding with peak rain
-     4. IMD has issued Red Alert for the region"
-```
-
-### 3. Evacuation Routing
-
-```javascript
-// Show nearest shelter
-showEvacuationRoute()
-
-// Display all available shelters
-showAllEvacuationRoutes()
-
-// Start trip monitoring
-startTripMonitoring()
-```
-
-### 4. Forecast Analysis
-
-```python
-# Get 7-day forecast
-GET /api/forecast?city=Bangalore&days=7
-
-# Response includes:
-# - Daily risk predictions
-# - Weather conditions
-# - AI safety guidance
-```
-
-### 5. Batch City Analysis
-
-```python
-POST /api/batch-analyze
-Content-Type: application/json
-
-{
-  "cities": ["Mumbai", "Delhi", "Chennai", "Kolkata", "Bangalore"]
-}
-
-# Returns comparative risk analysis for all cities
-```
-
----
-
-##  API Documentation
+## API Documentation
 
 ### Base URL
 ```
@@ -588,7 +431,7 @@ Response:
 
 ---
 
-##  Project Structure
+## Project Structure
 
 ```
 disaster-predictor-ai/
@@ -626,7 +469,7 @@ disaster-predictor-ai/
 
 ---
 
-##  Contributing
+## Contributing
 
 We welcome contributions! Here's how you can help:
 
@@ -669,7 +512,7 @@ We welcome contributions! Here's how you can help:
 
 ---
 
-##  Future Enhancements
+## Future Enhancements
 
 ### Phase 1: Tourist Safety (In Progress)
 - [ ] GPS quality enhancement with Kalman filtering
@@ -703,7 +546,7 @@ We welcome contributions! Here's how you can help:
 
 ---
 
-##  Performance Metrics
+## Performance Metrics
 
 ### System Performance
 - **API Response Time**: <500ms average
@@ -720,7 +563,7 @@ We welcome contributions! Here's how you can help:
 
 ---
 
-##  Known Issues
+## Known Issues
 
 1. **IMD API Limitations**
    - Some APIs return limited data
@@ -740,68 +583,6 @@ We welcome contributions! Here's how you can help:
 
 ---
 
-##  Documentation
-
-- **API Reference**: [docs/API.md](docs/API.md)
-- **Deployment Guide**: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)
-- **Model Training**: [docs/TRAINING.md](docs/TRAINING.md)
-- **Contributing Guide**: [CONTRIBUTING.md](CONTRIBUTING.md)
-
----
-
-##  Acknowledgments
-
-- **Indian Meteorological Department** for weather data APIs
-- **Mapbox** for mapping and routing services
-- **OpenRouter** for AI model access
-- **Scikit-Learn** community for ML tools
-- **Flask** framework developers
-
----
-
-##  Contact
-
-**Project Maintainer**: Karan Singh Rathore
-- Email: karan.rathore.aiml.engineer@gmail.com
-- LinkedIn: [@Karan Singh Rathore](https://www.linkedin.com/in/karansingh7773/)
-- GitHub: [@Karan Singh Rathore](https://github.com/karansingh7773-rathore)
-
-**Project Link**: [https://github.com/karansingh7773-rathore/Pre-Disaster-Predictor-Trained-on-ML-algorithms-Powered-by-AI](https://github.com/karansingh7773-rathore/Pre-Disaster-Predictor-Trained-on-ML-algorithms-Powered-by-AI)
-
----
-
-##  License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-```
-MIT License
-
-Copyright (c) 2025 Karan Singh Rathore
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction...
-```
-
----
-
-##  Star History
-
-If this project helped you, please consider giving it a ⭐️!
-
-[![Star History Chart](https://api.star-history.com/svg?repos=karansingh7773-rathore/disaster-predictor-ai&type=Date)](https://star-history.com/#karansingh7773-rathore/disaster-predictor-ai&Date)
-
----
-
-##  Inspiration
-
-This project was inspired by the need to make disaster preparedness accessible to everyone. By combining cutting-edge AI with real-time data, we aim to save lives and reduce the impact of natural disasters on communities worldwide.
-
-> "Technology should serve humanity, especially in times of crisis." - Project Vision
-
----
-
-**Made with ❤️ for a safer world**
-
-*Last Updated: Octomber 2025*
